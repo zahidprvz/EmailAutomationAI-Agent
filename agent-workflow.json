@@ -1,0 +1,142 @@
+{
+  "name": "1. N8N Send Mail Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json['What is your email?'] }}",
+        "subject": "RE: Query",
+        "emailType": "text",
+        "message": "={{ $json.content.parts[0].text }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        608,
+        112
+      ],
+      "id": "id",
+      "name": "Send a message",
+      "webhookId": "webhook-id",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-id",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "Contact US",
+        "formDescription": "We'll get back to you soon",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "What is your name?",
+              "placeholder": "e.g John Duo",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "What is your email?",
+              "fieldType": "email",
+              "placeholder": "e.g johnduo@gmail.com",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "What is your query?",
+              "placeholder": "What do you want to ask?",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false,
+          "buttonLabel": "Let's get started"
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        112
+      ],
+      "id": "id",
+      "name": "On form submission",
+      "webhookId": "webhook-id"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash-lite",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash-lite"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are a helpful, intelligent email writing assistant.",
+              "role": "model"
+            },
+            {
+              "content": "=Your task is to customize the email using the following data:\n\n {{ $json['What is your name?'] }}\n{{ $json['What is your email?'] }}\n{{ $json['What is your query?'] }}\n\n---\n\nEmail Template:\n\nHey, {{ $json['What is your name?'] }}\n\nThen in the body of the email write a suitable Response here according to the query of the user got, but try to keep it short.\n\nThanks,\nZahid"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        208,
+        112
+      ],
+      "id": "id",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "gemini-api",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "version-id",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "instance-id"
+  },
+  "id": "id",
+  "tags": []
+}
